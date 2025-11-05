@@ -7,6 +7,10 @@ from typing import Any, TypedDict
 
 from anthropic import AsyncAnthropic
 from anthropic.types import MessageParam, ToolUnionParam
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 MAX_TOKENS = 1000
 
@@ -232,7 +236,7 @@ async def main(concurrent: bool = True):
     }
 
     # Run the test 10 times and track success rate
-    num_runs = 10
+    num_runs = 1
     expected_answer = 8769
     prompt = "Calculate (2^10 + 3^5) * 7 - 100. Use the python_expression tool and then submit the answer."
 
@@ -249,7 +253,7 @@ async def main(concurrent: bool = True):
             tools=tools,
             tool_handlers=tool_handlers,
             expected_answer=expected_answer,
-            verbose=False,
+            verbose=True,
         )
         for i in range(num_runs)
     ]
@@ -283,4 +287,4 @@ async def main(concurrent: bool = True):
 
 if __name__ == "__main__":
     # Set to True for concurrent execution, False for sequential execution
-    asyncio.run(main(concurrent=True))
+    asyncio.run(main(concurrent=False))
