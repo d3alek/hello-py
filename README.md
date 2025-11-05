@@ -1,23 +1,21 @@
 hello-py
 ===
 
-## Task: Shape-Preserving Smoothing Resample + Linear Rescale Utilities
+## Task: Shape-Preserving Smoothing Resample
 
-This task asks the model to implement two data preprocessing functions commonly used in ML engineering:
+This task asks the model to implement a data preprocessing function commonly used in ML engineering:
 
-1. **`smoothing_resample(arr: list[float], target_len: int) -> list[float]`**: Deterministically resamples an array to a target length while preserving overall shape, monotonicity, and most critically, the mean of the array (within 20% tolerance).
-
-2. **`linear_rescale(arr: list[float], new_min: float, new_max: float) -> list[float]`**: Linearly maps array values from their current range to a new range, preserving relative ordering.
+**`smoothing_resample(arr: list[float], target_len: int) -> list[float]`**: Deterministically resamples an array to a target length while preserving overall shape, monotonicity, and most critically, the mean of the array (within 20% tolerance).
 
 ### Why This Task?
 
-These functions are essential for data preprocessing in ML pipelines, where arrays need to be resampled to match expected dimensions while preserving statistical properties, or normalized to specific ranges while maintaining relative relationships.
+This function is essential for data preprocessing in ML pipelines, where arrays need to be resampled to match expected dimensions while preserving statistical properties. The challenge lies in maintaining the mean during downsampling, which requires understanding area-preserving resampling techniques rather than simple interpolation.
 
 ### General Model Problem Discovered
 
 Through extensive testing, we discovered a critical weakness in how LLMs handle **mean preservation during downsampling** in the `smoothing_resample` function:
 
-**The Problem**: When models use simple linear interpolation (the most obvious approach), they fail to preserve the mean of the input array when downsampling, especially with arrays containing sharp peaks. Linear interpolation creates a smooth curve between points, but doesn't account for the statistical property of mean preservation. Note: The `linear_rescale` function is typically implemented correctly by models, as it's a straightforward linear transformation.
+**The Problem**: When models use simple linear interpolation (the most obvious approach), they fail to preserve the mean of the input array when downsampling, especially with arrays containing sharp peaks. Linear interpolation creates a smooth curve between points, but doesn't account for the statistical property of mean preservation.
 
 **Evidence from Failure Modes**:
 - **Check 6b, 6c, 6d**: These checks test mean preservation during downsampling with different peak patterns (center peak, peak at start, isolated peak). Models consistently fail these with mean ratios of 0.33-0.43 (well above the 0.20 threshold), indicating they're losing ~60-70% of the mean information during downsampling.
